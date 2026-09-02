@@ -111,6 +111,18 @@ class AcceptNotificationRequest extends AbstractPayzumRequest implements Notific
         return $raw;
     }
 
+    /**
+     * Whether this delivery reports a payment completed in full (`finished`).
+     *
+     * Not part of Omnipay's NotificationInterface, but real consumers (e.g.
+     * CiviCRM's omnipaymultiprocessor) call isSuccessful() on the object that
+     * acceptNotification()->send() returns, so the alias is load-bearing.
+     */
+    public function isSuccessful(): bool
+    {
+        return $this->getTransactionStatus() === NotificationInterface::STATUS_COMPLETED;
+    }
+
     /** Canonical status, or null when the payload carries something unknown. */
     public function status(): ?PaymentStatus
     {

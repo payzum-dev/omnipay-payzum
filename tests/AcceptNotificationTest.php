@@ -65,6 +65,21 @@ class AcceptNotificationTest extends TestCase
         self::assertSame(NotificationInterface::STATUS_COMPLETED, $notification->send()->getTransactionStatus());
     }
 
+    public function testIsSuccessfulOnlyForFinished(): void
+    {
+        self::assertTrue($this->gatewayFor($this->paidPayload())->acceptNotification()->isSuccessful());
+
+        foreach (['waiting', 'partially_paid', 'expired', 'failed'] as $status) {
+            $payload = $this->paidPayload();
+            $payload['payment_status'] = $status;
+
+            self::assertFalse(
+                $this->gatewayFor($payload)->acceptNotification()->isSuccessful(),
+                "isSuccessful() must be false for {$status}"
+            );
+        }
+    }
+
     public function testTamperedBodyIsRejected(): void
     {
         $payload = $this->paidPayload();
